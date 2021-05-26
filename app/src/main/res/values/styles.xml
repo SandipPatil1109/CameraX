@@ -1,0 +1,7 @@
+<resources>
+
+    <style name="Widget.Theme.CameraX.ButtonBar.Fullscreen" parent="">
+        <item name="android:background">@color/white</item>
+        <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
+    </style>
+</resources>
