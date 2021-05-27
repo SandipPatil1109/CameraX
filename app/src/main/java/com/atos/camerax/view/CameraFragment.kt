@@ -1,9 +1,7 @@
 package com.atos.camerax.view
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Bundle
 import android.os.Environment
@@ -19,12 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.atos.camerax.R
 import kotlinx.android.synthetic.main.fragment_camera.*
-import java.io.BufferedInputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.net.URL
-import java.net.URLConnection
+import java.io.*
 import java.util.*
 
 
@@ -92,29 +85,10 @@ class CameraFragment : Fragment() {
 
         // Build the image capture use case and attach button click listener
         val imageCapture = ImageCapture(imageCaptureConfig)
-        val root: String = Environment.getExternalStorageDirectory().toString();
+
+        //
         btn_take_picture.setOnClickListener {
-
-            val file = File("$root/saved_images")
-
-            imageCapture.takePicture(file,
-                object : ImageCapture.OnImageSavedListener {
-                    override fun onError(
-                        error: ImageCapture.UseCaseError,
-                        message: String, exc: Throwable?
-                    ) {
-                        val msg = "Photo capture failed: $message"
-                        Toast.makeText(requireActivity(), msg, Toast.LENGTH_SHORT).show()
-
-                    }
-
-                    override fun onImageSaved(file: File) {
-                        val msg = "Photo capture successfully: ${file.path}"
-                        Toast.makeText(requireActivity(),msg, Toast.LENGTH_SHORT).show()
-                        Log.d(TAG, "${file.absolutePath}")
-                    }
-                })
-
+            captureImage(imageCapture)
         }
 
 
@@ -174,4 +148,41 @@ class CameraFragment : Fragment() {
         }
     }
 
+
+    private fun captureImage(imageCapture: ImageCapture) {
+        val file = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
+            "IMG${System.currentTimeMillis()}.jpg"
+        )
+
+        if (!file.exists()) {
+            try {
+                val isCreated = file.createNewFile()
+
+            } catch (e: IOException) {
+
+                Toast.makeText(requireActivity(), "Failed to Create File", Toast.LENGTH_LONG).show()
+                e.printStackTrace()
+            }
+        }
+        imageCapture.takePicture(file, imageSavedListener)
+    }
+
+
+    private val imageSavedListener = object : ImageCapture.OnImageSavedListener {
+        override fun onError(
+            error: ImageCapture.UseCaseError,
+            message: String, exc: Throwable?
+        ) {
+            val msg = "Photo capture failed: $message"
+            Toast.makeText(requireActivity(), msg, Toast.LENGTH_SHORT).show()
+
+        }
+
+        override fun onImageSaved(file: File) {
+            val msg = "Photo capture successfully: ${file.path}"
+            Toast.makeText(requireActivity(), msg, Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "${file.absolutePath}")
+        }
+    }
 }
