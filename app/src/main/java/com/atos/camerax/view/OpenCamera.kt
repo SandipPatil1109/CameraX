@@ -9,13 +9,28 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.atos.camerax.R
+import com.atos.camerax.view.OpenCamera.Companion.REQUEST_CODE_PERMISSIONS
+import com.atos.camerax.view.OpenCamera.Companion.REQUIRED_PERMISSIONS
 import kotlinx.android.synthetic.main.activity_open_camera.*
 import kotlinx.android.synthetic.main.fragment_camera.*
 
 class OpenCamera : AppCompatActivity() {
+
+    companion object {
+        private const val REQUEST_CODE_PERMISSIONS = 10
+         private val REQUIRED_PERMISSIONS =
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_open_camera)
+
+
 
         btnStartCamera.setOnClickListener {
 
@@ -26,14 +41,14 @@ class OpenCamera : AppCompatActivity() {
             } else {
                 ActivityCompat.requestPermissions(
                     this,
-                    CameraFragment.REQUIRED_PERMISSIONS,
-                    CameraFragment.REQUEST_CODE_PERMISSIONS
+                    OpenCamera.REQUIRED_PERMISSIONS,
+                    OpenCamera.REQUEST_CODE_PERMISSIONS
                 )
             }
         }
     }
 
-    private fun allPermissionsGranted() = CameraFragment.REQUIRED_PERMISSIONS.all {
+    private fun allPermissionsGranted() = OpenCamera.REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(
             this, it
         ) == PackageManager.PERMISSION_GRANTED
@@ -44,7 +59,7 @@ class OpenCamera : AppCompatActivity() {
         IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == CameraFragment.REQUEST_CODE_PERMISSIONS) {
+        if (requestCode == OpenCamera.REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
 
                 val intent = Intent(this, MainActivity::class.java)
@@ -61,16 +76,5 @@ class OpenCamera : AppCompatActivity() {
         }
     }
 
-    companion object {
-        private const val TAG = "CameraXBasic"
-        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-        private const val REQUEST_CODE_PERMISSIONS = 10
-        private val REQUIRED_PERMISSIONS =
-            arrayOf(
-                Manifest.permission.CAMERA,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            )
-    }
 
 }
