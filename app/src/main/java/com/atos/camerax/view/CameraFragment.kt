@@ -1,6 +1,7 @@
 package com.atos.camerax.view
 
 import android.Manifest
+import android.app.usage.ExternalStorageStats
 import android.content.pm.PackageManager
 import android.graphics.Matrix
 import android.os.Bundle
@@ -37,13 +38,13 @@ class CameraFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (allPermissionsGranted()) {
-            texture.post { startCamera() }
-        } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(), REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
-            )
-        }
+//        if (allPermissionsGranted()) {
+        texture.post { startCamera() }
+//        } else {
+//            ActivityCompat.requestPermissions(
+//                requireActivity(), REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
+//            )
+//        }
 
 
         // Every time the provided texture view changes, recompute layout
@@ -73,7 +74,6 @@ class CameraFragment : Fragment() {
             updateTransform()
         }
 
-
         // Create configuration object for the image capture use case
         val imageCaptureConfig = ImageCaptureConfig.Builder()
             .apply {
@@ -86,13 +86,13 @@ class CameraFragment : Fragment() {
         // Build the image capture use case and attach button click listener
         val imageCapture = ImageCapture(imageCaptureConfig)
 
-        //
+        //Capture Picture
         btn_take_picture.setOnClickListener {
             captureImage(imageCapture)
         }
 
 
-        CameraX.bindToLifecycle(this, preview, imageCapture)
+        CameraX.bindToLifecycle(requireActivity(), preview, imageCapture)
 
 
     }
@@ -113,11 +113,12 @@ class CameraFragment : Fragment() {
         texture.setTransform(matrix)
     }
 
+
     companion object {
         private const val TAG = "CameraXBasic"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-        private const val REQUEST_CODE_PERMISSIONS = 10
-        private val REQUIRED_PERMISSIONS =
+        const val REQUEST_CODE_PERMISSIONS = 10
+        val REQUIRED_PERMISSIONS =
             arrayOf(
                 Manifest.permission.CAMERA,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -125,28 +126,28 @@ class CameraFragment : Fragment() {
             )
     }
 
-    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
-        ContextCompat.checkSelfPermission(
-            requireActivity(), it
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>, grantResults:
-        IntArray
-    ) {
-        if (requestCode == REQUEST_CODE_PERMISSIONS) {
-            if (allPermissionsGranted()) {
-                texture.post { startCamera() }
-            } else {
-                Toast.makeText(
-                    requireActivity(),
-                    "Permissions not granted by the user.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
+//    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+//        ContextCompat.checkSelfPermission(
+//            requireActivity(), it
+//        ) == PackageManager.PERMISSION_GRANTED
+//    }
+//
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int, permissions: Array<String>, grantResults:
+//        IntArray
+//    ) {
+//        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+//            if (allPermissionsGranted()) {
+//                texture.post { startCamera() }
+//            } else {
+//                Toast.makeText(
+//                    requireActivity(),
+//                    "Permissions not granted by the user.",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//            }
+//        }
+//    }
 
 
     private fun captureImage(imageCapture: ImageCapture) {
@@ -165,6 +166,7 @@ class CameraFragment : Fragment() {
                 e.printStackTrace()
             }
         }
+
         imageCapture.takePicture(file, imageSavedListener)
     }
 
